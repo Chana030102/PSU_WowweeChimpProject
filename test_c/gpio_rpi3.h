@@ -38,6 +38,7 @@ const char GPIO_RM_PATH[]  = "/sys/class/gpio/unexport";
 
 /*============ PROTOTYPES ============*/
 int gpio_rpi3_setup(void); 
+int gpio_rpi3_cleanup(void);
 int gpio_rpi3_set(int pin, char *direction);
 int gpio_rpi3_write(int pin, int value);
 int gpio_rpi3_read(int pin);
@@ -70,6 +71,27 @@ int gpio_rpi3_setup(void)
 
     fclose(f);
     return 0;        
+}
+
+/**
+ *
+ **/
+int gpio_rpi3_cleanup(void)
+{
+    FILE *f;
+ 
+    if(!(f = fopen(GPIO_ADD_PATH,"w")))
+    {
+        fprintf(stderr,"Failed to open %s\n",GPIO_ADD_PATH);
+        return -1;
+    }
+
+    for(int i = 2; i< 28; i++)
+        fprintf(f,GPIO_ARM_PATH,"%d",i);
+
+    fclose(f);
+    return 0;        
+
 }
 
 /**

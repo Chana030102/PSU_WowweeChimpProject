@@ -14,6 +14,6 @@ int main(void)
     gpio_rpi3_write(LED,1);
     sleep(2);
     gpio_rpi3_write(LED,0);
- 
+    gpio_rpi3_cleanup(); 
     return 0;
 }
