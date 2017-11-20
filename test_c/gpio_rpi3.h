@@ -172,10 +172,11 @@ int gpio_rpi3_read(int pin)
         fprintf(stderr,"Invalid GPIO pin number of %d\n",pin);
         return -1;
     }
-
+    
+    // read value of input
     f = fopen(pinpath,"r");
     if((x = fgetc(f))!=EOF)
-        x = (x==49);
+        x = (x==49); // 49 == ASCII symbol 1
     else
         x = -1;
     
