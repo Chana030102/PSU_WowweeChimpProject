@@ -61,8 +61,7 @@ int clocked_read(int clockpin, int in)
 {
    gpio_rpi3_write(clockpin,1); 
    gpio_rpi3_write(clockpin,0);
-   return gpio_rpi3_read(in, 0);
-
+   return gpio_rpi3_read(in);
 }
 
 /**
@@ -79,14 +78,14 @@ int clocked_read(int clockpin, int in)
  **/
 void mcp3008_setconfig_bits(int config_bits[], int mode, int channel)
 {
-   int i, bit;
+   int i;
    
    config_bits[0] = 1; // start bit
    config_bits[1] = mode; // SGL/DFF bit
    
    // Convert channel into bit representation and store.
    for(i=0;i<3;i++)
-       config_bits[i+1] = (channel >> (2-i)) & 1;
+       config_bits[i+2] = (channel >> (2-i)) & 1;
 }
 
 
@@ -114,7 +113,7 @@ int mcp3008_get_val(int channel, int clockpin, int in, int out, int cs)
     // Setup and initialize
     gpio_rpi3_set(clockpin, "in");
     gpio_rpi3_set(in,"in");
-    gpio_rpi3_set(out,"out";
+    gpio_rpi3_set(out,"out");
     gpio_rpi3_set(cs,"out");
    
     mcp3008_setconfig_bits(config_bits,1,channel); // Get config bits
@@ -122,7 +121,7 @@ int mcp3008_get_val(int channel, int clockpin, int in, int out, int cs)
     // Initiate SPI communication
     gpio_rpi3_write(cs, 1);
     gpio_rpi3_write(clockpin,0);
-    gpio_write(cs,0);
+    gpio_rpi3_write(cs,0);
 
     // Configure MCP3008 to single-ended 
     for(i=0;i<5;i++)

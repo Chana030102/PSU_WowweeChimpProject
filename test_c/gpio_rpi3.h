@@ -29,8 +29,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define OUT "out"
-#define IN "in"
 /*============ GLOBALS ================*/
 const char PATH[]          = "/sys/class/gpio/gpio";
 const char GPIO_ADD_PATH[] = "/sys/class/gpio/export";
@@ -40,60 +38,38 @@ const char GPIO_RM_PATH[]  = "/sys/class/gpio/unexport";
 int gpio_rpi3_setup(void); 
 int gpio_rpi3_cleanup(void);
 int gpio_rpi3_set(int pin, char *direction);
+int gpio_rpi3_rm(int pin);
 int gpio_rpi3_write(int pin, int value);
 int gpio_rpi3_read(int pin);
 
 /**
- * gpio_rpi3_setup - setup all GPIO pins and initialize as inputs
+ * gpio_rpi3_rm - removes GPIO file access
+ * @pin - GPIO pin to remove
  *
- * File access method of using GPIO pins.
- * GPIO pins are initialized as inputs to avoid writing to things
- * that it isn't supposed to.
- *
- * return -1 when fail to open GPIO_ADD_PATH
- * return 0 when successful
- **/
-int gpio_rpi3_setup(void)
+ * returns -1 upon invalid input or failure to open GPIO_RM_PATH
+ * returns 0 upon success
+ */
+int gpio_rpi3_rm(int pin)
 {
     FILE *f;
- 
-    if(!(f = fopen(GPIO_ADD_PATH,"w")))
+    
+    // Test for invalid inputs
+    if(pin < 2 || pin > 27)
     {
-        fprintf(stderr,"Failed to open %s\n",GPIO_ADD_PATH);
+        fprintf(stderr,"Invalid GPIO pin number of %d\n",pin);
+        return -1;
+    }    
+    
+    if(!(f = fopen(GPIO_RM_PATH,"w")))
+    {
+        fprintf(stderr,"Trouble opening %s\n",GPIO_RM_PATH);
         return -1;
     }
-
-    for(int i = 2; i< 28; i++)
-    {
-        fprintf(f,GPIO_ADD_PATH,"%d",i);
-        gpio_rpi3_set(i,"in");
-    }
-
+    fprintf(f,"%d",pin);
     fclose(f);
-    return 0;        
-}
-
-/**
- *
- **/
-int gpio_rpi3_cleanup(void)
-{
-    FILE *f;
- 
-    if(!(f = fopen(GPIO_ADD_PATH,"w")))
-    {
-        fprintf(stderr,"Failed to open %s\n",GPIO_ADD_PATH);
-        return -1;
-    }
-
-    for(int i = 2; i< 28; i++)
-        fprintf(f,GPIO_ARM_PATH,"%d",i);
-
-    fclose(f);
-    return 0;        
+    return 0;
 
 }
-
 /**
  * gpio_rpi3_set - set GPIO pin as input or ouptput
  * @pin: GPIO pin 
@@ -114,7 +90,7 @@ int gpio_rpi3_set(int pin, char *direction)
         return -1;
     }
 
-    if(strcmp(direction, "in")!=0 || strcmp(direction,"out")!=0)
+    if(strcmp(direction, "in")!=0 && strcmp(direction,"out")!=0)
     {
         fprintf(stderr,"Invalid direction of %s\n",direction);
         return -1;
@@ -146,7 +122,7 @@ int gpio_rpi3_set(int pin, char *direction)
  * @pin: GPIO pin
  * @value: 1 or 0
  * 
- * return -1 if invalid input
+ * return -1 upon invalid input
  * return 0 upon success
  **/
 int gpio_rpi3_write(int pin, int value)

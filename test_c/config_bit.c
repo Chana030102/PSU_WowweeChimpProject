@@ -8,6 +8,9 @@ int main(void)
 {
     int bits[5];
     int i;
+    
+    for(i=0;i<5;i++)
+        bits[i] = 0;
 
     mcp3008_setconfig_bits(bits,1,2);
     

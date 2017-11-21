@@ -10,10 +10,18 @@
 
 int main(void)
 {
-    gpio_rpi3_set(LED, OUT);
+    printf("Setup LED pin as output.\n");
+    gpio_rpi3_set(LED, "out");
+
+    printf("Write HIGH to LED pin.\n");
     gpio_rpi3_write(LED,1);
     sleep(2);
+
+    printf("Write LOW to LED pin.\n");
     gpio_rpi3_write(LED,0);
-    gpio_rpi3_cleanup(); 
+    
+    sleep(1);
+    printf("Cleanup GPIO pins\n");
+    gpio_rpi3_rm(LED); 
     return 0;
 }
