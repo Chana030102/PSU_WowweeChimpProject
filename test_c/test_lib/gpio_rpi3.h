@@ -54,7 +54,8 @@ int gpio_rpi3_read(int pin);
 int gpio_rpi3_rm(int pin)
 {
     FILE *f;
-    
+    DIR *dir;    
+    char pinpath[40];
     // Test for invalid inputs
     if(pin < 2 || pin > 27)
     {
@@ -62,6 +63,15 @@ int gpio_rpi3_rm(int pin)
         return -1;
     }    
     
+    sprintf(pinpath,"%s%d",PATH,pin);
+    dir = opendir(pinpath);
+    if(ENOENT == errno)
+    {
+        // Directory does not exist. Nothing to do
+        return 1;
+    }
+    closedir(dir);
+
     if(!(f = fopen(GPIO_RM_PATH,"w")))
     {
         fprintf(stderr,"Trouble opening %s\n",GPIO_RM_PATH);

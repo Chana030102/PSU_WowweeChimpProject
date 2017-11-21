@@ -1,27 +1,25 @@
 /*
- * Example to test GPIO_RPi3.h functions.
- * Blink an LED
- */
-#include "gpio_rpi3.h"
+ * Test program to try out wiringPi functions
+ **/
 #include <stdio.h>
-#include <unistd.h>
+#include <wiringPi.h>
 
-#define LED 2
+#define PIN 2
 
 int main(void)
 {
-    printf("Setup LED pin as output.\n");
-    gpio_rpi3_set(LED, "out");
+    int i;
 
-    printf("Write HIGH to LED pin.\n");
-    gpio_rpi3_write(LED,1);
-    sleep(2);
-
-    printf("Write LOW to LED pin.\n");
-    gpio_rpi3_write(LED,0);
+    wiringPiSetupGpio(); // Use BCM GPIO numbering
+    pinMode(PIN, OUTPUT);
     
-    sleep(1);
-    printf("Cleanup GPIO pins\n");
-    gpio_rpi3_rm(LED); 
+    for(i=0;i<3;i++)
+    {
+        digitalWrite(PIN,HIGH);
+        delay(500);
+        digitalWrite(PIN,LOW);
+        delay(500);
+    }
     return 0;
 }
+

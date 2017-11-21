@@ -1,12 +1,13 @@
-#Makefile for test programs for RPi3 GPIO library
+#test programs using wiringPi
 
-all: blink testconfig 
+all: blink adc
+
 
 blink: blink_LED.c
-	gcc -g -Wall -o blink_LED blink_LED.c
+	gcc -g -Wall -o blink blink_LED.c -lwiringPi
 
-config_bit: config_bit.c
-	gcc -g -Wall -o config_bit config_bit.c
+adc: read_adc.c
+	gcc -g -Wall -o adc read_adc.c -lwiringPi
 
-clean:
-	rm -f blink_LED config_bit
+clean: 
+	rm -f blink adc

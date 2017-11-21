@@ -19,8 +19,7 @@
  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ==================================================================
- * Library developed for Raspberry Pi 3
- * Tested on Raspberry Pi 3 Model B Vi 2
+ * *Does not work properly. Look into using spidev
  */
 #include <stdio.h>
 #include "gpio_rpi3.h"
@@ -122,6 +121,10 @@ int mcp3008_get_val(int channel, int clockpin, int in, int out, int cs)
     gpio_rpi3_write(cs, 1);
     gpio_rpi3_write(clockpin,0);
     gpio_rpi3_write(cs,0);
+    
+    //
+    for(i=0;i<8;i++)
+    {   clocked_write(clockpin,out,0); }
 
     // Configure MCP3008 to single-ended 
     for(i=0;i<5;i++)
