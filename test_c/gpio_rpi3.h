@@ -28,6 +28,8 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <dirent.h>
+#include <errno.h>
 
 /*============ GLOBALS ================*/
 const char PATH[]          = "/sys/class/gpio/gpio";
@@ -81,6 +83,7 @@ int gpio_rpi3_rm(int pin)
 int gpio_rpi3_set(int pin, char *direction)
 {
     FILE *f, *g;
+    DIR *dir;
     char pinpath[40];
 
     // Test for invalid inputs
@@ -95,11 +98,13 @@ int gpio_rpi3_set(int pin, char *direction)
         fprintf(stderr,"Invalid direction of %s\n",direction);
         return -1;
     }
-    sprintf(pinpath,"%s%d/direction",PATH,pin); // concatenate for GPIO# directory path
-
+    sprintf(pinpath,"%s%d",PATH,pin); // concatenate for GPIO# directory path
+    
     // Test for GPIO# directory. Make if not there
-    if(!(g = fopen(pinpath,"w")))
+    dir = opendir(pinpath);
+    if(ENOENT == errno)
     {
+        // Directory does not exist. Need to initialize it.
         if(!(f = fopen(GPIO_ADD_PATH,"w")))
         {
             fprintf(stderr,"Failed to open %s\n",GPIO_ADD_PATH);
@@ -108,12 +113,21 @@ int gpio_rpi3_set(int pin, char *direction)
 
         fprintf(f,"%d",pin);
         fclose(f);
-        
-        g = fopen(pinpath,"w");
     }
-    
-    fprintf(g,"%s",direction);
-    fclose(g);
+    else
+    {
+        // Directory exists
+        closedir(dir);
+        sprintf(pinpath,"%s/direction",pinpath);
+        if(!(g = fopen(pinpath,"w")))    
+        {
+            fprintf(stderr,"Faile to open %s\n",pinpath);
+            return -1;
+        }
+        fprintf(g,"%s",direction);
+        fclose(g);
+    }
+
     return 0;
 }
 
