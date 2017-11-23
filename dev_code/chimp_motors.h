@@ -32,18 +32,29 @@
 #define BASE 200 
 #define SPI_CHAN 0 
 
+// MCP3008 analog channels 
+#define E_EYES_LR 0
+#define E_EYES_UD 1
+#define E_BROWS   2
+#define E_MOUTH   3
+#define E_HEAD_UD 4
+#define E_HEAD_LR 5
+//#define E_LIDS    6
+
 // GPIO pins for motors
-#define M_ENABLE 26
-#define M_MOUTH_O 2
-#define M_MOUTH_C 3
+#define M_ENABLE  25 // physical pin 22
+#define M_MOUTH_O 14 // physical pin 8
+#define M_MOUTH_C 15 // physical pin 10
+#define M_EYES_U  17 // physical pin 11 
+#define M_EYES_D   4 // physical pin 7
+#define M_EYES_L   3 // phyiscal pin 5
+#define M_EYES_R   2 // physical pin 3  
+#define M_BROWS_U 27 // physical pin 13
+#define M_BROWS_D 22 // physical pin 15
+#define M_HEAD_U  23 // physical pin 16
+#define M_HEAD_D  24 // physical pin 18
 /*
-#define M_EYES_U
-#define M_EYES_D
-#define M_EYES_L
-#define M_EYES_R
-#define M_BROWS_U
-#define M_BROWS_D
-#define M_LIDS_U
+#define M_LIDS_U 
 #define M_LIDS_D
 #define M_NOSE
 */
@@ -51,23 +62,25 @@
 // Limit values for motor positions
 #define L_MOUTH_C 370
 #define L_MOUTH_O 530
-#define L_EYES_L 390
-#define L_EYES_R 620
-#define L_EYES_U 14
-#define L_EYES_D 30
+#define L_EYES_L  390
+#define L_EYES_R  620
+#define L_EYES_U   14
+#define L_EYES_D   30
 #define L_BROWS_U 415
 #define L_BROWS_D 590
-
+#define L_HEAD_U  400
+#define L_HEAD_D  740
+#define L_HEAD_R  760
+#define L_HEAD_L  330
 /*
-#define L_HEAD_U 
-#define L_HEAD_D
-#define L_HEAD_R
-#define L_HEAD_L
 #define L_LIDS_U
 #define L_LIDS_D
 */
 
 // Macros for driving motors
+#define WRITE_HIGH(pin)  digitalWrite(pin,HIGH)
+#define WRITE_LOW(pin) digitalWrite(pin,LOW)
+
 
 /*
  * Setup GPIO pins with BCM numbering.
@@ -78,40 +91,81 @@
 int chimp_setup(void)
 {
    wiringPiSetupGpio();  
-   mcp3004Setup(BASE,0);
+   mcp3004Setup( BASE,SPI_CHAN );
    return 0;
 
 }
 
-/*
- * Face the head up or down,
- * moving it to the desired position.
- **/
-int head_UpD(int position_val)
+int move_motor(int limit_h, int limit_l, int channel, int motor_h, int motor_l, int position_val)
 {
-    int current = analogRead(BASE+E_HEAD_UpD);
+    int current = analogRead(BASE+channel);
 
-    if(position_val < L_HEAD_U && position_val > L_HEAD_D)
+    // Test for out of range position value request
+    if(position_val < limit_l || position_val > limit_h)
     {
-        fprintf(stderr,"position_val of %d out of range for motor HEAD_UpD\n",position_val);
+        fprintf(stderr,"position_val of %d out of range for motor HEAD_UD\n",position_val);
         return -1;
-    }
-    else if(position_val < current)
-    {
-        while(position_val < analogRead(BASE+E_HEAD_UpD))
-        {
-            digitalWrite(M_MOUTH_C, HIGH);
-        }
-        digitalWrite(M_MOUTH_C,LOW);
-    }
-
-        
+    } 
     
-
+    WRITE_HIGH(M_ENABLE); // Enable motor drivers
+    // Move head to desired position
+    if(position_val < current)
+    {
+        while(position_val < analogRead(BASE+channel))
+        {   WRITE_HIGH(motor_l);   }
+        WRITE_LOW(motor_l);
+    }
+    else if(position_val > current)
+    {
+        while(position_val > analogRead(BASE+E_HEAD_UD))
+        {   WRITE_HIGH(motor_h);   }
+        WRITE_LOW(motor_h);
+    }
+    
+    WRITE_LOW(M_ENABLE); // disable motor drivers
+    return 0;
 }
 
+// Move the head up or down to desired position
+ 
+int head_UpD(int position_val)
+{
+    int current = analogRead(BASE+E_HEAD_UD);
 
-int head_LR(int position_val);
+    // Test for out of range position value request
+    if(position_val < L_HEAD_U && position_val > L_HEAD_D)
+    {
+        fprintf(stderr,"position_val of %d out of range for motor HEAD_UD\n",position_val);
+        return -1;
+    } 
+    
+    WRITE_HIGH
+    // Move head to desired position
+    if(position_val < current)
+    {// if current position is higher than desired, move head down
+        while(position_val < analogRead(BASE+E_HEAD_UD))
+        {   WRITE_HIGH(M_HEAD_D);   }
+        WRITE_LOW(M_HEAD_D);
+    }
+    else if(position_val > current)
+    {// if current position is lower than desired, move head up
+        while(position_val > analogRead(BASE+E_HEAD_UD))
+        {   WRITE_HIGH(M_HEAD_U);   }
+        WRITE_LOW(M_HEAD_D);
+    }
+        
+    return 0;
+}
+
+// Move head left or right to desired position
+int head_LR(int position_val)
+{
+    int current = analogRead(BASE+E_HEAD_LR);
+
+    
+    
+    return 0;
+}
 
 int eyes_UpD(int position_val);
 int eyes_RL(int position_val);
