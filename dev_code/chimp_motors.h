@@ -79,7 +79,7 @@
 
 // Macros for driving motors
 #define WRITE_HIGH(pin)  digitalWrite(pin,HIGH)
-#define WRITE_LOW(pin) digitalWrite(pin,LOW)
+#define WRITE_LOW(pin)   digitalWrite(pin,LOW)
 
 
 /*
@@ -93,17 +93,30 @@ int chimp_setup(void)
    wiringPiSetupGpio();  
    mcp3004Setup( BASE,SPI_CHAN );
    return 0;
-
 }
 
-int move_motor(int limit_h, int limit_l, int channel, int motor_h, int motor_l, int position_val)
+/* 
+ * move_motor - move motor to desired position
+ * @motor        - string to display for error message
+ * @limit_h      - upper limit value
+ * @limit_l      - lower limit value
+ * @channel      - analog channel on ADC to read from
+ * @motor_h      - motor that will increase position value
+ * @motor_l      - motor that will decrease position value
+ * @position_val - desired position to move motor to
+ *
+ * returns 0 upon success
+ * returns -1 when given position value out of range
+ **/
+int move_motor(char *motor, int limit_h, int limit_l, int channel, 
+               int motor_h, int motor_l, int position_val)
 {
     int current = analogRead(BASE+channel);
 
     // Test for out of range position value request
     if(position_val < limit_l || position_val > limit_h)
     {
-        fprintf(stderr,"position_val of %d out of range for motor HEAD_UD\n",position_val);
+        fprintf(stderr,"position_val of %d out of range for %s.\n",motor,position_val);
         return -1;
     } 
     
@@ -112,68 +125,72 @@ int move_motor(int limit_h, int limit_l, int channel, int motor_h, int motor_l, 
     if(position_val < current)
     {
         while(position_val < analogRead(BASE+channel))
-        {   WRITE_HIGH(motor_l);   }
-        WRITE_LOW(motor_l);
+        {   
+            WRITE_HIGH(motor_h);   
+        }
+        WRITE_LOW(motor_h);
     }
     else if(position_val > current)
     {
-        while(position_val > analogRead(BASE+E_HEAD_UD))
-        {   WRITE_HIGH(motor_h);   }
-        WRITE_LOW(motor_h);
+        while(position_val > analogRead(BASE+channel))
+        {   
+            WRITE_HIGH(motor_l);  
+        }
+        WRITE_LOW(motor_l);
     }
     
     WRITE_LOW(M_ENABLE); // disable motor drivers
     return 0;
 }
 
-// Move the head up or down to desired position
- 
+// Move head up or down to desired position
 int head_UpD(int position_val)
 {
-    int current = analogRead(BASE+E_HEAD_UD);
-
-    // Test for out of range position value request
-    if(position_val < L_HEAD_U && position_val > L_HEAD_D)
-    {
-        fprintf(stderr,"position_val of %d out of range for motor HEAD_UD\n",position_val);
-        return -1;
-    } 
-    
-    WRITE_HIGH
-    // Move head to desired position
-    if(position_val < current)
-    {// if current position is higher than desired, move head down
-        while(position_val < analogRead(BASE+E_HEAD_UD))
-        {   WRITE_HIGH(M_HEAD_D);   }
-        WRITE_LOW(M_HEAD_D);
-    }
-    else if(position_val > current)
-    {// if current position is lower than desired, move head up
-        while(position_val > analogRead(BASE+E_HEAD_UD))
-        {   WRITE_HIGH(M_HEAD_U);   }
-        WRITE_LOW(M_HEAD_D);
-    }
-        
-    return 0;
+    return move_motor("Head_UpD",L_HEAD_D,L_HEAD_U,E_HEAD_UD,
+                      M_HEAD_D,M_HEAD_U,position_val);
 }
 
 // Move head left or right to desired position
 int head_LR(int position_val)
 {
-    int current = analogRead(BASE+E_HEAD_LR);
-
-    
-    
-    return 0;
+    return move_motor("Head_LR",L_HEAD_L,L_HEAD_R,E_HEAD_LR,
+                      M_HEAD_R,M_HEAD_L,position_val);
 }
 
-int eyes_UpD(int position_val);
-int eyes_RL(int position_val);
+// Move eyes up or down to desired position
+int eyes_UpD(int position_val)
+{
+    return move_motor("Eyes_UpD",L_EYES_D,L_EYES_U,E_EYES_UD,
+                      M_EYES_D,M_EYES_U,position_val);
+}
 
-int brows_UpD(int position_val);
-int lids_UpD(int position_val);
+// Move eyes left or right to desired position
+int eyes_LR(int position_val)
+{
+    return move_motor("Eyes_LR",L_EYES_R,L_EYES_L,E_EYES_LR,
+                      M_EYES_R,L_EYES_L,position_val);
+}
 
+// Move eye brows up or down to desired position
+int brows_UpD(int position_val)
+{
+    return move_motor("Eyebrows",L_BROWS_D,L_BROW_U,E_BROWS,
+                      M_BROWS_D,M_BROWS_U,position_val);
+}
+
+// Move mouth open or close to desired position
 int mouth_UpD(int position_val);
+{
+    return move_motor("Mouth",L_MOUTH_O,L_MOUTH_C,E_MOUTH,
+                      M_MOUTH_O,M_MOUTH_C,position_val);
+}
 
-int nose_up(int position_val);
-int nose_down(int position_val);
+/*
+// Move nose
+int nose(int position_val);
+// Move eye lids up or down to desired position
+int lids_UpD(int position_val)
+{
+    return move_motors("Eyelids",
+}
+*/
