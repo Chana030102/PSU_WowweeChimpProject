@@ -214,7 +214,6 @@ int calc_position(int degrees, int pos_max, int pos_min)
 
     // Calculate position value
     position = abs(pos_max - pos_min);
-    degrees+=90;
     position *= (degrees + 90);
     
     if(position != 0)
