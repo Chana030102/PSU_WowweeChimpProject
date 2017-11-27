@@ -143,6 +143,7 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
 // Move head up or down to desired position
 int head_UpD(int position_val)
 {
+    int head_ud;
     return move_motor("Head_UpD",L_HEAD_D,L_HEAD_U,E_HEAD_UD,
                       M_HEAD_D,M_HEAD_U,position_val);
 }
@@ -227,7 +228,12 @@ int calc_position(int degrees, int pos_max, int pos_min)
 }
 
 /*
- * 
+ * head_position - will be used to test how smoothily head moves
+ * @head_ud_degree - degree position for up-down motor
+ * @head_lr_degree - degree position for left-right motor
+ *
+ * returns -1 if degrees are out of limit range
+ * returns 0 if successful
  **/
 int head_position(int head_ud_degree, int head_lr_degree)
 {
