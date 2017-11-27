@@ -24,6 +24,7 @@
  * Encoders will be powered by a 3.3V pin.
  **/
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <wiringPi.h>
 
@@ -53,11 +54,9 @@
 #define M_BROWS_D 22 // physical pin 15
 #define M_HEAD_U  23 // physical pin 16
 #define M_HEAD_D  24 // physical pin 18
-/*
-#define M_LIDS_U 
-#define M_LIDS_D
-#define M_NOSE
-*/
+//#define M_LIDS_U 
+//#define M_LIDS_D
+//#define M_NOSE
 
 // Limit values for motor positions
 #define L_MOUTH_C 370
@@ -72,10 +71,8 @@
 #define L_HEAD_D  740
 #define L_HEAD_R  760
 #define L_HEAD_L  330
-/*
-#define L_LIDS_U
-#define L_LIDS_D
-*/
+//#define L_LIDS_U
+//#define L_LIDS_D
 
 // Macros for driving motors
 #define WRITE_HIGH(pin)  digitalWrite(pin,HIGH)
@@ -101,8 +98,8 @@ int chimp_setup(void)
  * @limit_h      - upper limit value
  * @limit_l      - lower limit value
  * @channel      - analog channel on ADC to read from
- * @motor_h      - motor that will increase position value
- * @motor_l      - motor that will decrease position value
+ * @motor_h      - motor that will increment position value
+ * @motor_l      - motor that will decrement position value
  * @position_val - desired position to move motor to
  *
  * returns 0 upon success
@@ -188,9 +185,91 @@ int mouth_UpD(int position_val);
 /*
 // Move nose
 int nose(int position_val);
+
 // Move eye lids up or down to desired position
 int lids_UpD(int position_val)
 {
     return move_motors("Eyelids",
 }
 */
+
+/*
+ * calc_position - calculates a position value based off degrees given
+ * @degrees - degrees position desired for chimp position
+ * @pos_max - the upper limit value of the motor
+ * @pos_min - the lower limit value of the motor
+ *
+ * returns -1 when given a degrees out of range
+ * returns calculated position upon success
+ **/
+int calc_position(int degrees, int pos_max, int pos_min)
+{
+    div_t temp; // struct to hold quotient and remainder
+    int position; // return this upon success
+
+    // Check if out of range
+    if(degrees < -90 || degrees > 90)
+        return -1;
+
+    // Calculate position value
+    position = abs(pos_max - pos_min);
+    degrees+=90;
+    position *= (degrees + 90);
+    
+    if(position != 0)
+    {
+        temp = div(position,180);
+        position = temp.quot;
+        if(temp.rem >= 90)
+            position++;
+    }
+    return pos_min + position;
+}
+
+/*
+ * 
+ **/
+int head_position(int head_ud_degree, int head_lr_degree)
+{
+    int head_ud, head_lr;
+
+    head_ud = calc_position(head_ud_degree, L_HEAD_D, L_HEAD_U);
+    head_lr = calc_position(head_lr_degree, L_HEAD_R, L_HEAD_L);
+    if(head_ud < 0)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for Head_UD\n",head_ud_degree);
+        return -1;
+    }
+    else if(head_lr < 0)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for Head_LR\n",head_lr_degree);
+        return -1;
+    }
+    
+    head_UpD(head_ud);
+    head_LR(head_lr);     
+
+    return 0;
+}
+
+/*
+ *
+ **/
+
+
+/*
+ *
+ **/
+
+
+/*
+ *
+ **/
+
+
+/*
+ *
+ **/
+
+
+
