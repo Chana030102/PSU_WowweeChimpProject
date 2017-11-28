@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 
-#define PIN 2
+#define PIN 26
 
 int main(void)
 {

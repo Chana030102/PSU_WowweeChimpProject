@@ -8,6 +8,8 @@
 
 #define BASE 300
 
+extern int mcp3004Setup( int pinBase, int spiChannel);
+
 int main(void)
 {
     int i;

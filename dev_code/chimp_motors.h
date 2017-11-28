@@ -43,7 +43,7 @@
 //#define E_LIDS    6
 
 // GPIO pins for motors
-#define M_ENABLE  25 // physical pin 22
+#define M_ENABLE  26 // physical pin 37
 #define M_MOUTH_O 14 // physical pin 8
 #define M_MOUTH_C 15 // physical pin 10
 #define M_EYES_U  17 // physical pin 11 
@@ -54,6 +54,8 @@
 #define M_BROWS_D 22 // physical pin 15
 #define M_HEAD_U  23 // physical pin 16
 #define M_HEAD_D  24 // physical pin 18
+#define M_HEAD_R   5 // physical pin 29
+#define M_HEAD_L   6 // physical pin 31
 //#define M_LIDS_U 
 //#define M_LIDS_D
 //#define M_NOSE
@@ -81,10 +83,11 @@
 
 /*
  * Setup GPIO pins with BCM numbering.
- * Also setup SPI interfacing with MCP3008.
+ * Also setup SPI interfacing with MCP3007.
  * pins to read from for different analog inputs
  * will be BASE+channel 
  **/
+extern int mcp3004Setup(int pinBase, int spiChannel);
 int chimp_setup(void)
 {
    wiringPiSetupGpio();  
@@ -113,30 +116,41 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
     // Test for out of range position value request
     if(position_val < limit_l || position_val > limit_h)
     {
-        fprintf(stderr,"position_val of %d out of range for %s.\n",motor,position_val);
+        fprintf(stderr,"position_val of %d out of range for %s.\n",position_val,motor);
         return -1;
     } 
     
-    WRITE_HIGH(M_ENABLE); // Enable motor drivers
-    // Move head to desired position
+    printf("moving %s\n",motor);    
+//    WRITE_HIGH(M_ENABLE); // Enable motor drivers
+    digitalWrite(M_ENABLE,HIGH);  
+// Move head to desired position
     if(position_val < current)
     {
+        printf("desired position is less than current(%d)\n",current);   
         while(position_val < analogRead(BASE+channel))
         {   
-            WRITE_HIGH(motor_h);   
-        }
-        WRITE_LOW(motor_h);
+//            WRITE_HIGH(motor_h);
+            digitalWrite(motor_h,HIGH);
+            digitalWrite(motor_l,LOW);
+                   }
+//        WRITE_LOW(motor_h);
+        digitalWrite(motor_h,LOW);        
     }
     else if(position_val > current)
     {
+        printf("desired position is greater than current(%d)\n",current);
+
         while(position_val > analogRead(BASE+channel))
         {   
-            WRITE_HIGH(motor_l);  
+//            WRITE_HIGH(motor_l);  
+            digitalWrite(motor_l,HIGH);           
+            digitalWrite(motor_h,LOW);
         }
-        WRITE_LOW(motor_l);
+//        WRITE_LOW(motor_l);
+        digitalWrite(motor_l,LOW);
     }
-    
-    WRITE_LOW(M_ENABLE); // disable motor drivers
+    digitalWrite(M_ENABLE,LOW);
+   // WRITE_LOW(M_ENABLE); // disable motor drivers
     return 0;
 }
 
@@ -151,7 +165,7 @@ int head_UpD(int position_val)
 // Move head left or right to desired position
 int head_LR(int position_val)
 {
-    return move_motor("Head_LR",L_HEAD_L,L_HEAD_R,E_HEAD_LR,
+    return move_motor("Head_LR",L_HEAD_R,L_HEAD_L,E_HEAD_LR,
                       M_HEAD_R,M_HEAD_L,position_val);
 }
 
@@ -172,12 +186,12 @@ int eyes_LR(int position_val)
 // Move eye brows up or down to desired position
 int brows_UpD(int position_val)
 {
-    return move_motor("Eyebrows",L_BROWS_D,L_BROW_U,E_BROWS,
+    return move_motor("Eyebrows",L_BROWS_D,L_BROWS_U,E_BROWS,
                       M_BROWS_D,M_BROWS_U,position_val);
 }
 
 // Move mouth open or close to desired position
-int mouth_UpD(int position_val);
+int mouth_UpD(int position_val)
 {
     return move_motor("Mouth",L_MOUTH_O,L_MOUTH_C,E_MOUTH,
                       M_MOUTH_O,M_MOUTH_C,position_val);
@@ -251,6 +265,7 @@ int head_position(int head_ud_degree, int head_lr_degree)
         return -1;
     }
     
+    printf("head_UD value = %d\thead_LR value = %d\n",head_ud,head_lr);   
     head_UpD(head_ud);
     head_LR(head_lr);     
 
