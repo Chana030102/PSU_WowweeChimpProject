@@ -155,11 +155,21 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
 }
 
 // Move head up or down to desired position
-int head_UpD(int position_val)
+// Input the desired position in degrees
+int head_UpD(int degrees)
 {
     int head_ud;
+    
+    head_ud = calc_position(degrees, L_HEAD_D, L_HEAD_U);
+    if(head_ud < 0)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for Head_UD\n",degrees);
+        return -1;
+    }
+    printf("head_UD value = %d\n",head_ud);   
+
     return move_motor("Head_UpD",L_HEAD_D,L_HEAD_U,E_HEAD_UD,
-                      M_HEAD_D,M_HEAD_U,position_val);
+                      M_HEAD_D,M_HEAD_U,head_ud);
 }
 
 // Move head left or right to desired position
@@ -239,39 +249,6 @@ int calc_position(int degrees, int pos_max, int pos_min)
     }
     return pos_min + position;
 }
-
-/*
- * head_position - will be used to test how smoothily head moves
- * @head_ud_degree - degree position for up-down motor
- * @head_lr_degree - degree position for left-right motor
- *
- * returns -1 if degrees are out of limit range
- * returns 0 if successful
- **/
-int head_position(int head_ud_degree, int head_lr_degree)
-{
-    int head_ud, head_lr;
-
-    head_ud = calc_position(head_ud_degree, L_HEAD_D, L_HEAD_U);
-    head_lr = calc_position(head_lr_degree, L_HEAD_R, L_HEAD_L);
-    if(head_ud < 0)
-    {
-        fprintf(stderr,"Position of %d degrees is out of range for Head_UD\n",head_ud_degree);
-        return -1;
-    }
-    else if(head_lr < 0)
-    {
-        fprintf(stderr,"Position of %d degrees is out of range for Head_LR\n",head_lr_degree);
-        return -1;
-    }
-    
-    printf("head_UD value = %d\thead_LR value = %d\n",head_ud,head_lr);   
-    head_UpD(head_ud);
-    head_LR(head_lr);     
-
-    return 0;
-}
-
 /*
  *
  **/
