@@ -27,59 +27,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <wiringPi.h>
-
-// arbitrary base for wiringPi to assign
-// pins for use. 
-#define BASE 200 
-#define SPI_CHAN 0 
-
-// MCP3008 analog channels 
-#define E_EYES_LR 0
-#define E_EYES_UD 1
-#define E_BROWS   2
-#define E_MOUTH   3
-#define E_HEAD_UD 4
-#define E_HEAD_LR 5
-//#define E_LIDS    6
-
-// GPIO pins for motors
-#define M_ENABLE  26 // physical pin 37
-#define M_MOUTH_O 14 // physical pin 8
-#define M_MOUTH_C 15 // physical pin 10
-#define M_EYES_U  17 // physical pin 11 
-#define M_EYES_D   4 // physical pin 7
-#define M_EYES_L   3 // phyiscal pin 5
-#define M_EYES_R   2 // physical pin 3  
-#define M_BROWS_U 27 // physical pin 13
-#define M_BROWS_D 22 // physical pin 15
-#define M_HEAD_U  23 // physical pin 16
-#define M_HEAD_D  24 // physical pin 18
-#define M_HEAD_R   5 // physical pin 29
-#define M_HEAD_L   6 // physical pin 31
-//#define M_LIDS_U 
-//#define M_LIDS_D
-//#define M_NOSE
-
-// Limit values for motor positions
-#define L_MOUTH_C 370
-#define L_MOUTH_O 530
-#define L_EYES_L  390
-#define L_EYES_R  620
-#define L_EYES_U   14
-#define L_EYES_D   30
-#define L_BROWS_U 415
-#define L_BROWS_D 590
-#define L_HEAD_U  400
-#define L_HEAD_D  740
-#define L_HEAD_R  760
-#define L_HEAD_L  330
-//#define L_LIDS_U
-//#define L_LIDS_D
-
-// Macros for driving motors
-#define WRITE_HIGH(pin)  digitalWrite(pin,HIGH)
-#define WRITE_LOW(pin)   digitalWrite(pin,LOW)
-
+#include "chimp_def.h"
 
 /*
  * Setup GPIO pins with BCM numbering.
@@ -87,7 +35,6 @@
  * pins to read from for different analog inputs
  * will be BASE+channel 
  **/
-extern int mcp3004Setup(int pinBase, int spiChannel);
 int chimp_setup(void)
 {
    wiringPiSetupGpio();  
@@ -154,34 +101,106 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
     return 0;
 }
 
-// Move head up or down to desired position
-// Input the desired position in degrees
+/*
+ * calc_position - calculates a position value based off degrees given
+ * @degrees - degrees position desired for chimp position
+ * @pos_max - the upper limit value of the motor
+ * @pos_min - the lower limit value of the motor
+ *
+ * returns calculated position upon success
+ **/
+int calc_position(int degrees, int pos_max, int pos_min)
+{
+    div_t temp; // struct to hold quotient and remainder
+    int position; // return this upon success
+
+    // Calculate position value
+    position = abs(pos_max - pos_min);
+    position *= (degrees + 90);
+    
+    if(position != 0)
+    {
+        temp = div(position,180);
+        position = temp.quot;
+        if(temp.rem >= 90)
+            position++;
+    }
+    return pos_min + position;
+}
+
+/*
+ * head_UpD - moves motor for up and down motion for the head
+ * @degrees - desired position in the form of degrees
+ *
+ * The head is limited to looking straight forward and upward,
+ * so the input range will be limitted between 0 and +90.
+ *
+ * returns -1 if invalid input
+ * returns 0 on success
+ **/
 int head_UpD(int degrees)
 {
-    int head_ud;
+    int position;
     
-    head_ud = calc_position(degrees, L_HEAD_D, L_HEAD_U);
-    if(head_ud < 0)
+    if(degrees < 0 || degrees > 90)
     {
         fprintf(stderr,"Position of %d degrees is out of range for Head_UD\n",degrees);
         return -1;
     }
-    printf("head_UD value = %d\n",head_ud);   
+    position = calc_position(degrees, L_HEAD_D, L_HEAD_U);
+
+    fprintf(stdout,"Head_UD value = %d\n",position);   
 
     return move_motor("Head_UpD",L_HEAD_D,L_HEAD_U,E_HEAD_UD,
-                      M_HEAD_D,M_HEAD_U,head_ud);
+                      M_HEAD_D,M_HEAD_U,position);
 }
 
-// Move head left or right to desired position
-int head_LR(int position_val)
+/*
+ * head_LR - moves motor for left and right motion for the head
+ * @degrees - desired position in the form of degrees
+ *
+ * Degrees input will be limitted to the range of -90 and +90
+ * 
+ * returns -1 if invalid input
+ * returns 0 on success
+ **/
+int head_LR(int degrees)
 {
+    int position;
+
+    if(degrees < -90 || degrees > 90)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for HEAD_LR\n",degrees);
+        return -1;
+    }
+    position = calc_position(degrees, L_HEAD_R, L_HEAD_L);
+    fprintf(stdout,"Head_LR value = %d\n",position);
+    
     return move_motor("Head_LR",L_HEAD_R,L_HEAD_L,E_HEAD_LR,
-                      M_HEAD_R,M_HEAD_L,position_val);
+                      M_HEAD_R,M_HEAD_L,position);
 }
 
-// Move eyes up or down to desired position
-int eyes_UpD(int position_val)
+/*
+ * eyes_UpD - moves motor for up and down motion for the eyes
+ * @degrees - desired position in the form of degrees
+ *
+ * Degrees input will be limited to the range of -90 and +90
+ *
+ * returns -1 if invalid input
+ * returns 0 on success
+ **/
+int eyes_UpD(int position)
 {
+    int position;
+
+    if(degrees < -90 || degrees > 90)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for EYES_UD\n",degrees);
+        return -1;
+    }
+    position = calc_position(degrees, L_EYES_D, L_EYES_U);
+    fprintf(stdout,"Eyes_UpD value = %d\n",position);
+
     return move_motor("Eyes_UpD",L_EYES_D,L_EYES_U,E_EYES_UD,
                       M_EYES_D,M_EYES_U,position_val);
 }
@@ -218,37 +237,6 @@ int lids_UpD(int position_val)
 }
 */
 
-/*
- * calc_position - calculates a position value based off degrees given
- * @degrees - degrees position desired for chimp position
- * @pos_max - the upper limit value of the motor
- * @pos_min - the lower limit value of the motor
- *
- * returns -1 when given a degrees out of range
- * returns calculated position upon success
- **/
-int calc_position(int degrees, int pos_max, int pos_min)
-{
-    div_t temp; // struct to hold quotient and remainder
-    int position; // return this upon success
-
-    // Check if out of range
-    if(degrees < -90 || degrees > 90)
-        return -1;
-
-    // Calculate position value
-    position = abs(pos_max - pos_min);
-    position *= (degrees + 90);
-    
-    if(position != 0)
-    {
-        temp = div(position,180);
-        position = temp.quot;
-        if(temp.rem >= 90)
-            position++;
-    }
-    return pos_min + position;
-}
 /*
  *
  **/
