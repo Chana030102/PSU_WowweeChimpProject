@@ -39,6 +39,43 @@ int chimp_setup(void)
 {
    wiringPiSetupGpio();  
    mcp3004Setup( BASE,SPI_CHAN );
+   
+   // Set pins as output
+   SET_OUT(M_ENABLE);
+   SET_OUT(M_MOUTH_O);
+   SET_OUT(M_MOUTH_C);
+   SET_OUT(M_EYES_U);
+   SET_OUT(M_EYES_D);
+   SET_OUT(M_EYES_L);
+   SET_OUT(M_EYES_R);
+   SET_OUT(M_BROWS_U);
+   SET_OUT(M_BROWS_D);
+   SET_OUT(M_HEAD_U);
+   SET_OUT(M_HEAD_D);
+   SET_OUT(M_HEAD_R);
+   SET_OUT(M_HEAD_L);
+   //SET_OUT(M_LIDS_U);
+   //SET_OUT(M_LIDS_D);
+   //SET_OUT(M_NOSE);
+
+   // Set all motor pins to low at start
+   WRITE_LOW(M_ENABLE);
+   WRITE_LOW(M_MOUTH_O);  
+   WRITE_LOW(M_MOUTH_C);  
+   WRITE_LOW(M_EYES_U);  
+   WRITE_LOW(M_EYES_D);  
+   WRITE_LOW(M_EYES_L);  
+   WRITE_LOW(M_EYES_R);  
+   WRITE_LOW(M_BROWS_U);  
+   WRITE_LOW(M_BROWS_D);  
+   WRITE_LOW(M_HEAD_U);  
+   WRITE_LOW(M_HEAD_D);  
+   WRITE_LOW(M_HEAD_R);  
+   WRITE_LOW(M_HEAD_L);
+   //WRITE_LOW(M_LIDS_U);
+   //WRITE_LOW(M_LIDS_D);
+   //WRITE_LOW(M_NOSE);
+   
    return 0;
 }
 
@@ -68,20 +105,16 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
     } 
     
     printf("moving %s\n",motor);    
-//    WRITE_HIGH(M_ENABLE); // Enable motor drivers
-    digitalWrite(M_ENABLE,HIGH);  
+    WRITE_HIGH(M_ENABLE); // Enable motor drivers
 // Move head to desired position
     if(position_val < current)
     {
         printf("desired position is less than current(%d)\n",current);   
         while(position_val < analogRead(BASE+channel))
         {   
-//            WRITE_HIGH(motor_h);
-            digitalWrite(motor_h,HIGH);
-            digitalWrite(motor_l,LOW);
-                   }
-//        WRITE_LOW(motor_h);
-        digitalWrite(motor_h,LOW);        
+            WRITE_HIGH(motor_h);
+        }
+        WRITE_LOW(motor_h);
     }
     else if(position_val > current)
     {
@@ -89,15 +122,11 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
 
         while(position_val > analogRead(BASE+channel))
         {   
-//            WRITE_HIGH(motor_l);  
-            digitalWrite(motor_l,HIGH);           
-            digitalWrite(motor_h,LOW);
+            WRITE_HIGH(motor_l);  
         }
-//        WRITE_LOW(motor_l);
-        digitalWrite(motor_l,LOW);
+        WRITE_LOW(motor_l);
     }
-    digitalWrite(M_ENABLE,LOW);
-   // WRITE_LOW(M_ENABLE); // disable motor drivers
+    WRITE_LOW(M_ENABLE); // disable motor drivers
     return 0;
 }
 
@@ -189,7 +218,7 @@ int head_LR(int degrees)
  * returns -1 if invalid input
  * returns 0 on success
  **/
-int eyes_UpD(int position)
+int eyes_UpD(int degrees)
 {
     int position;
 
@@ -202,7 +231,7 @@ int eyes_UpD(int position)
     fprintf(stdout,"Eyes_UpD value = %d\n",position);
 
     return move_motor("Eyes_UpD",L_EYES_D,L_EYES_U,E_EYES_UD,
-                      M_EYES_D,M_EYES_U,position_val);
+                      M_EYES_D,M_EYES_U,position);
 }
 
 // Move eyes left or right to desired position

@@ -9,7 +9,7 @@ int main(void)
 
     for(i=0;i<5;i++)
     {
-        head_UpD(position[i]);
+        head_LR(position[i]);
         delay(500);
     }
     

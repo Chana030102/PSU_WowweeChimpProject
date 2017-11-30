@@ -28,7 +28,7 @@ int main(void)
     printf("| % 4d | % 4d | % 4d | % 4d | % 4d | % 4d | % 4d | % 4d |\n",
             value[0],value[1],value[2],value[3],value[4],value[5],value[6],value[7]);
 
-    sleep(1);
+    sleep(0.5);
     }
 //    printf("Got: %d\n",analogRead(100));
     return 0;

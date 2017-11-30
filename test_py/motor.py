@@ -24,10 +24,10 @@ SPI_DEVICE = 0
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 
 # Define Pins for motors and ADC read
-Motor1A  = 16 # 1A open
-Motor2A  = 18 # 2A close
-Motor12E = 22 # Enable CH1 CH2
-MotorCH  = 0  # Read MCP3008 CH0
+Motor1A  = 29 # 1A open
+Motor2A  = 31 # 2A close
+Motor12E = 37 # Enable CH1 CH2
+MotorCH  = 5  # Read MCP3008 CH0
 
 # Setup GPIO pin modes
 GPIO.setup(Motor1A ,GPIO.OUT)

@@ -79,7 +79,8 @@
 // Macros for driving motors
 #define WRITE_HIGH(pin)  digitalWrite(pin,HIGH)
 #define WRITE_LOW(pin)   digitalWrite(pin,LOW)
-
+#define SET_OUT(pin)     pinMode(pin,OUTPUT) 
+#define SET_IN(pin)      pinMode(pin,INPUT)
 
 extern int mcp3004Setup(int pinBase, int spiChannel);
 
