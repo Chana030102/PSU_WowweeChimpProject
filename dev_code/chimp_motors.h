@@ -176,6 +176,8 @@ int head_UpD(int degrees)
         fprintf(stderr,"Position of %d degrees is out of range for Head_UD\n",degrees);
         return -1;
     }
+    else if(degrees == 0)
+        degrees-=90;
     position = calc_position(degrees, L_HEAD_D, L_HEAD_U);
 
     fprintf(stdout,"Head_UD value = %d\n",position);   
@@ -234,23 +236,83 @@ int eyes_UpD(int degrees)
                       M_EYES_D,M_EYES_U,position);
 }
 
-// Move eyes left or right to desired position
-int eyes_LR(int position_val)
+/*
+ * eyes_LR - moves motor for left and right motion for the eyes
+ * @degrees - desired position in the form of degrees
+ *
+ * Degrees input will be limited to the range of -90 and +90
+ *
+ * returns -1 if invalid input
+ * returns 0 on success
+ **/
+int eyes_LR(int degrees)
 {
+    int position;
+
+    if(degrees < -90 || degrees > 90)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for Eyes_LR\n,"degrees);
+        return -1;
+    }
+    position = calc_position(degrees, L_EYES_R, L_EYES_L);
+    fprintf(stdout,"Eyes_LR value = %d\n",position);
+
     return move_motor("Eyes_LR",L_EYES_R,L_EYES_L,E_EYES_LR,
                       M_EYES_R,L_EYES_L,position_val);
 }
 
-// Move eye brows up or down to desired position
-int brows_UpD(int position_val)
+/*
+ * brows_UpD - moves motor for the up and down motion for the eyebrows
+ * @degrees - desired position in the form of degrees
+ *
+ * Degrees input will be limited to the range of 0 and +90
+ *
+ * returns -1 if invalid input
+ * returns 0 on success
+ **/
+int brows_UpD(int degrees)
 {
+    int position;
+
+    if(degrees < 0 || degrees > 90)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for Brows\n",degrees);
+        return -1;
+    }
+    else if(degrees == 0)
+        degrees-=90;
+
+    position = calc_position(degrees, L_BROWS_D, L_BROWS_U);
+    fprintf(stdout,"Brows value = %d\n",position);
+
     return move_motor("Eyebrows",L_BROWS_D,L_BROWS_U,E_BROWS,
                       M_BROWS_D,M_BROWS_U,position_val);
 }
 
-// Move mouth open or close to desired position
-int mouth_UpD(int position_val)
+/*
+ * mouth_UpD - moves motor for the up and down motion for the mouth
+ * @degrees - desired position in the form of degrees
+ *
+ * Degrees input will be limited to the range of 0 and +90
+ *
+ * returns -1 if invalid input
+ * returns 0 on success
+ **/
+int mouth_UpD(int degrees)
 {
+    int position;
+
+    if(degrees < 0 || degrees > 90)
+    {
+        fprintf(stderr,"Position of %d degrees is out of range for Mouth\n",degrees);
+        return -1;
+    }
+    else if(degrees == 0)
+        degrees-=90;
+
+    position = calc_position(degrees, L_MOUTH_O, L_MOUTH_C);
+    fprintf(stdout,"Mouth value = %d\n",position);
+
     return move_motor("Mouth",L_MOUTH_O,L_MOUTH_C,E_MOUTH,
                       M_MOUTH_O,M_MOUTH_C,position_val);
 }
@@ -269,21 +331,4 @@ int lids_UpD(int position_val)
 /*
  *
  **/
-
-
-/*
- *
- **/
-
-
-/*
- *
- **/
-
-
-/*
- *
- **/
-
-
 

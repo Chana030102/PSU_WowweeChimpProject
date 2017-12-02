@@ -76,7 +76,7 @@
 //#define L_LIDS_U
 //#define L_LIDS_D
 
-// Macros for driving motors
+// Macros for motor control
 #define WRITE_HIGH(pin)  digitalWrite(pin,HIGH)
 #define WRITE_LOW(pin)   digitalWrite(pin,LOW)
 #define SET_OUT(pin)     pinMode(pin,OUTPUT) 
