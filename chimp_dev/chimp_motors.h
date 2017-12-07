@@ -40,7 +40,7 @@ int chimp_setup(void)
    wiringPiSetupGpio();  
    mcp3004Setup( BASE,SPI_CHAN );
    
-   // Set pins as output
+   // Set motor pins as output
    SET_OUT(M_ENABLE);
    SET_OUT(M_MOUTH_O);
    SET_OUT(M_MOUTH_C);
@@ -332,3 +332,22 @@ int lids_UpD(int position_val)
  *
  **/
 
+/*
+ *
+ **/
+int chimp_curious(void)
+{
+
+
+    return 0;
+}
+
+
+/*
+ *
+ **/
+int chimp_happy(void)
+{
+
+
+    return 0
