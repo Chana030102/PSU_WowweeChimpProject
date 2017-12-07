@@ -54,9 +54,10 @@ int chimp_setup(void)
    SET_OUT(M_HEAD_D);
    SET_OUT(M_HEAD_R);
    SET_OUT(M_HEAD_L);
+   SET_OUT(M_NOSE_U);
+   SET_OUT(M_NOSE_D);
    //SET_OUT(M_LIDS_U);
    //SET_OUT(M_LIDS_D);
-   //SET_OUT(M_NOSE);
 
    // Set all motor pins to low at start
    WRITE_LOW(M_ENABLE);
@@ -251,14 +252,14 @@ int eyes_LR(int degrees)
 
     if(degrees < -90 || degrees > 90)
     {
-        fprintf(stderr,"Position of %d degrees is out of range for Eyes_LR\n,"degrees);
+        fprintf(stderr,"Position of %d degrees is out of range for Eyes_LR\n",degrees);
         return -1;
     }
     position = calc_position(degrees, L_EYES_R, L_EYES_L);
     fprintf(stdout,"Eyes_LR value = %d\n",position);
 
     return move_motor("Eyes_LR",L_EYES_R,L_EYES_L,E_EYES_LR,
-                      M_EYES_R,L_EYES_L,position_val);
+                      M_EYES_R,L_EYES_L,position);
 }
 
 /*
@@ -286,7 +287,7 @@ int brows_UpD(int degrees)
     fprintf(stdout,"Brows value = %d\n",position);
 
     return move_motor("Eyebrows",L_BROWS_D,L_BROWS_U,E_BROWS,
-                      M_BROWS_D,M_BROWS_U,position_val);
+                      M_BROWS_D,M_BROWS_U,position);
 }
 
 /*
@@ -314,8 +315,18 @@ int mouth_UpD(int degrees)
     fprintf(stdout,"Mouth value = %d\n",position);
 
     return move_motor("Mouth",L_MOUTH_O,L_MOUTH_C,E_MOUTH,
-                      M_MOUTH_O,M_MOUTH_C,position_val);
+                      M_MOUTH_O,M_MOUTH_C,position);
 }
+
+// Move nose up
+void nose_up(void)
+{
+   WRITE_HIGH(M_ENABLE);
+   WRITE_HIGH(M_NOSE_U);
+   WRITE_LOW(M_NOSE_U);
+   WRITE_LOW(M_ENABLE);
+   
+} 
 
 /*
 // Move nose
@@ -350,4 +361,5 @@ int chimp_happy(void)
 {
 
 
-    return 0
+    return 0;
+}

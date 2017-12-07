@@ -58,7 +58,8 @@
 #define M_HEAD_L   6 // physical pin 31
 //#define M_LIDS_U 
 //#define M_LIDS_D
-//#define M_NOSE
+#define M_NOSE_U  13 // physical pin 33
+#define M_NOSE_D  19 // physical pin 35
 
 // Limit values for motor positions
 #define L_MOUTH_C 370
