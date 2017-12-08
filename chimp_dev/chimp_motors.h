@@ -105,12 +105,12 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
         return -1;
     } 
     
-    printf("moving %s\n",motor);    
+    printf("moving %s: Current = %d | New: %d\n",motor,current,position_val);    
     WRITE_HIGH(M_ENABLE); // Enable motor drivers
 // Move head to desired position
     if(position_val < current)
     {
-        printf("desired position is less than current(%d)\n",current);   
+//        printf("desired position is less than current(%d)\n",current);   
         while(position_val < analogRead(BASE+channel))
         {   
             WRITE_HIGH(motor_h);
@@ -119,7 +119,7 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
     }
     else if(position_val > current)
     {
-        printf("desired position is greater than current(%d)\n",current);
+//        printf("desired position is greater than current(%d)\n",current);
 
         while(position_val > analogRead(BASE+channel))
         {   
@@ -181,8 +181,6 @@ int head_UpD(int degrees)
         degrees-=90;
     position = calc_position(degrees, L_HEAD_D, L_HEAD_U);
 
-    fprintf(stdout,"Head_UD value = %d\n",position);   
-
     return move_motor("Head_UpD",L_HEAD_D,L_HEAD_U,E_HEAD_UD,
                       M_HEAD_D,M_HEAD_U,position);
 }
@@ -206,7 +204,6 @@ int head_LR(int degrees)
         return -1;
     }
     position = calc_position(degrees, L_HEAD_R, L_HEAD_L);
-    fprintf(stdout,"Head_LR value = %d\n",position);
     
     return move_motor("Head_LR",L_HEAD_R,L_HEAD_L,E_HEAD_LR,
                       M_HEAD_R,M_HEAD_L,position);
@@ -231,7 +228,6 @@ int eyes_UpD(int degrees)
         return -1;
     }
     position = calc_position(degrees, L_EYES_D, L_EYES_U);
-    fprintf(stdout,"Eyes_UpD value = %d\n",position);
 
     return move_motor("Eyes_UpD",L_EYES_D,L_EYES_U,E_EYES_UD,
                       M_EYES_D,M_EYES_U,position);
@@ -256,7 +252,6 @@ int eyes_LR(int degrees)
         return -1;
     }
     position = calc_position(degrees, L_EYES_R, L_EYES_L);
-    fprintf(stdout,"Eyes_LR value = %d\n",position);
 
     return move_motor("Eyes_LR",L_EYES_R,L_EYES_L,E_EYES_LR,
                       M_EYES_R,L_EYES_L,position);
@@ -284,7 +279,6 @@ int brows_UpD(int degrees)
         degrees-=90;
 
     position = calc_position(degrees, L_BROWS_D, L_BROWS_U);
-    fprintf(stdout,"Brows value = %d\n",position);
 
     return move_motor("Eyebrows",L_BROWS_D,L_BROWS_U,E_BROWS,
                       M_BROWS_D,M_BROWS_U,position);
@@ -312,7 +306,6 @@ int mouth_UpD(int degrees)
         degrees-=90;
 
     position = calc_position(degrees, L_MOUTH_O, L_MOUTH_C);
-    fprintf(stdout,"Mouth value = %d\n",position);
 
     return move_motor("Mouth",L_MOUTH_O,L_MOUTH_C,E_MOUTH,
                       M_MOUTH_O,M_MOUTH_C,position);
