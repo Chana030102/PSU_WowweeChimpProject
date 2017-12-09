@@ -254,7 +254,7 @@ int eyes_LR(int degrees)
     position = calc_position(degrees, L_EYES_R, L_EYES_L);
 
     return move_motor("Eyes_LR",L_EYES_R,L_EYES_L,E_EYES_LR,
-                      M_EYES_R,L_EYES_L,position);
+                      M_EYES_R,M_EYES_L,position);
 }
 
 /*

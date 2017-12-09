@@ -1,6 +1,6 @@
 #
 
-all: test test2 test3 turn_off
+all: test test2 test3 test4 off
 
 test: test.c
 	gcc -g -Wall -o test test.c -lwiringPi
@@ -11,8 +11,11 @@ test2: test2.c
 test3: test3.c
 	gcc -g -Wall -o test3 test3.c -lwiringPi
 
-turn_off: turn_off.c
-	gcc -g -Wall -o turn_off.c -lwiringPi
+test4: test4.c
+	gcc -g -Wall -o test4 test4.c -lwiringPi
+
+off: off.c
+	gcc -g -Wall -o off.c -lwiringPi
 
 clean:
-	rm -f test test2 test3 turn_off
+	rm -f test test2 test3 test4 off

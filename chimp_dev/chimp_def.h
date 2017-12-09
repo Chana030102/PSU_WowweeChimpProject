@@ -64,8 +64,8 @@
 // Limit values for motor positions
 #define L_MOUTH_C 370
 #define L_MOUTH_O 530
-#define L_EYES_L  390
-#define L_EYES_R  620
+#define L_EYES_L  410
+#define L_EYES_R  600
 #define L_EYES_U   14
 #define L_EYES_D   30
 #define L_BROWS_U 415
