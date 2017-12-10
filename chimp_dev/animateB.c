@@ -1,3 +1,12 @@
+/*
+ * This program will make the Chimp perform
+ * the following movements:
+ * 1) Move eyes left and right twice
+ * 2) Center eyes to look forward
+ * 3) Move eyebrows up and down twice
+ * 4) Open and close moouth
+ *
+ **/
 #include "chimp_motors.h"
 #include "chimp_def.h"
 

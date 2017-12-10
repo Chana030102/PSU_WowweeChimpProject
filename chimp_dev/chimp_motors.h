@@ -29,10 +29,29 @@
 #include <wiringPi.h>
 #include "chimp_def.h"
 
+/*======== Prototypes ========*/
+int chimp_setpu(void);
+int move_motor(char *motor, int limit_h, int limit_l, int channel, 
+               int motor_h, int motor_l, int position_val);
+int calc_position(int degrees, int pos_max, int pos_min);
+
+// motor control functions. 
+// NOTE: degrees input are absolute positions and are not
+//       relative changes to the current position.
+int head_UpD(int degrees);
+int head_LR(int degrees);
+int eyes_UpD(int degrees);
+int eyes_LR(int degrees);
+int brows_UpD(int degrees);
+int mouth_UpD(int degrees);
+void nose_up(void);
+
+/*========== Functions ==========*/
+
 /*
  * Setup GPIO pins with BCM numbering.
- * Also setup SPI interfacing with MCP3007.
- * pins to read from for different analog inputs
+ * Also setup SPI interfacing with MCP3004/8.
+ * Pins to read from for different analog inputs
  * will be BASE+channel 
  **/
 int chimp_setup(void)
@@ -107,10 +126,10 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
     
     printf("moving %s: Current = %d | New: %d\n",motor,current,position_val);    
     WRITE_HIGH(M_ENABLE); // Enable motor drivers
-// Move head to desired position
+    
+    // Move head to desired position
     if(position_val < current)
     {
-//        printf("desired position is less than current(%d)\n",current);   
         while(position_val < analogRead(BASE+channel))
         {   
             WRITE_HIGH(motor_h);
@@ -119,8 +138,6 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
     }
     else if(position_val > current)
     {
-//        printf("desired position is greater than current(%d)\n",current);
-
         while(position_val > analogRead(BASE+channel))
         {   
             WRITE_HIGH(motor_l);  
@@ -137,7 +154,7 @@ int move_motor(char *motor, int limit_h, int limit_l, int channel,
  * @pos_max - the upper limit value of the motor
  * @pos_min - the lower limit value of the motor
  *
- * returns calculated position upon success
+ * returns calculated position
  **/
 int calc_position(int degrees, int pos_max, int pos_min)
 {
@@ -159,14 +176,12 @@ int calc_position(int degrees, int pos_max, int pos_min)
 }
 
 /*
- * head_UpD - moves motor for up and down motion for the head
- * @degrees - desired position in the form of degrees
- *
+ * head_UpD - moves motor for up and down motion of head
  * The head is limited to looking straight forward and upward,
  * so the input range will be limitted between 0 and +90.
  *
- * returns -1 if invalid input
- * returns 0 on success
+ * degree 0 to face upward
+ * degree +90 to face forward
  **/
 int head_UpD(int degrees)
 {
@@ -186,13 +201,12 @@ int head_UpD(int degrees)
 }
 
 /*
- * head_LR - moves motor for left and right motion for the head
- * @degrees - desired position in the form of degrees
- *
+ * head_LR - moves motor for left and right motion of head
  * Degrees input will be limitted to the range of -90 and +90
  * 
- * returns -1 if invalid input
- * returns 0 on success
+ * degree -90 to face left
+ * degree 0 to face forward
+ * degree +90 to face right
  **/
 int head_LR(int degrees)
 {
@@ -210,13 +224,12 @@ int head_LR(int degrees)
 }
 
 /*
- * eyes_UpD - moves motor for up and down motion for the eyes
- * @degrees - desired position in the form of degrees
- *
+ * eyes_UpD - moves motor for up and down motion of eyes
  * Degrees input will be limited to the range of -90 and +90
  *
- * returns -1 if invalid input
- * returns 0 on success
+ * degree -90 to look up
+ * degree 0 to look center forward
+ * degree +90 to look down
  **/
 int eyes_UpD(int degrees)
 {
@@ -234,13 +247,12 @@ int eyes_UpD(int degrees)
 }
 
 /*
- * eyes_LR - moves motor for left and right motion for the eyes
- * @degrees - desired position in the form of degrees
- *
+ * eyes_LR - moves motor for left and right motion of eyes
  * Degrees input will be limited to the range of -90 and +90
  *
- * returns -1 if invalid input
- * returns 0 on success
+ * degree -90 to look left
+ * degree 0 to look center forward
+ * degree +90 to look right
  **/
 int eyes_LR(int degrees)
 {
@@ -258,13 +270,11 @@ int eyes_LR(int degrees)
 }
 
 /*
- * brows_UpD - moves motor for the up and down motion for the eyebrows
- * @degrees - desired position in the form of degrees
- *
+ * brows_UpD - moves motor for the up and down motion of eyebrows
  * Degrees input will be limited to the range of 0 and +90
- *
- * returns -1 if invalid input
- * returns 0 on success
+ * 
+ * degree 0 to move up
+ * degree +90 to move down
  **/
 int brows_UpD(int degrees)
 {
@@ -285,13 +295,11 @@ int brows_UpD(int degrees)
 }
 
 /*
- * mouth_UpD - moves motor for the up and down motion for the mouth
- * @degrees - desired position in the form of degrees
- *
+ * mouth_UpD - moves motor for the up and down motion of mouth
  * Degrees input will be limited to the range of 0 and +90
  *
- * returns -1 if invalid input
- * returns 0 on success
+ * degree 0 to close mouth
+ * degree +90 to open mouth
  **/
 int mouth_UpD(int degrees)
 {
@@ -322,37 +330,6 @@ void nose_up(void)
 } 
 
 /*
-// Move nose
-int nose(int position_val);
-
 // Move eye lids up or down to desired position
 int lids_UpD(int position_val)
-{
-    return move_motors("Eyelids",
-}
 */
-
-/*
- *
- **/
-
-/*
- *
- **/
-int chimp_curious(void)
-{
-
-
-    return 0;
-}
-
-
-/*
- *
- **/
-int chimp_happy(void)
-{
-
-
-    return 0;
-}

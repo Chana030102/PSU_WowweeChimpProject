@@ -1,21 +1,12 @@
-#
+# Makefile for animation programs for Wowwee Chimp
 
-all: test test2 test3 test4 off
+all: animateA animateB
 
-test: test.c
-	gcc -g -Wall -o test test.c -lwiringPi
+animateA: animateA.c
+	gcc -g -Wall -o animateA animateA.c -lwiringPi
 
-test2: test2.c
-	gcc -g -Wall -o test2 test2.c -lwiringPi
-
-test3: test3.c
-	gcc -g -Wall -o test3 test3.c -lwiringPi
-
-test4: test4.c
-	gcc -g -Wall -o test4 test4.c -lwiringPi
-
-off: off.c
-	gcc -g -Wall -o off.c -lwiringPi
+animeateB: animateB.c
+	gcc -g -Wall -o animateB animateB.c -lwiringPi
 
 clean:
-	rm -f test test2 test3 test4 off
+	rm -f animateA animateB
